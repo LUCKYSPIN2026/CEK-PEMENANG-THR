@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEM INJEKSI THR 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ff41; /* Hacker Green */
+            --accent: #ff003c; /* Cyberpunk Red */
+            --bg: #050505;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--primary);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Background Animasi Matrix */
+        #canvas {
+            position: fixed;
+            top: 0; left: 0; z-index: -1;
+            opacity: 0.3;
+        }
+
+        .main-frame {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--primary);
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 0 20px var(--primary), inset 0 0 10px var(--primary);
+            clip-path: polygon(10% 0, 100% 0, 100% 85%, 90% 100%, 0 100%, 0 15%);
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--primary);
+            letter-spacing: 5px;
+        }
+
+        .status-bar {
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--primary);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--primary);
+            padding: 15px;
+            color: var(--primary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            outline: none;
+            text-align: center;
+        }
+
+        input:focus {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .btn-check {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+        }
+
+        .btn-check:hover {
+            background: #fff;
+            box-shadow: 0 0 30px #fff;
+            transform: scale(1.02);
+        }
+
+        /* Layar Scanning */
+        #scanning-overlay {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .scan-line {
+            height: 2px;
+            background: var(--primary);
+            width: 100%;
+            position: relative;
+            animation: moveScan 1s linear infinite;
+        }
+
+        @keyframes moveScan {
+            0% { top: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 50px; opacity: 0; }
+        }
+
+        .terminal-text {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--primary);
+            height: 60px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        /* Hasil Jackpot */
+        #success-frame {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px double var(--primary);
+            background: rgba(0, 255, 65, 0.1);
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .amount {
+            font-size: 1.8rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--primary);
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div class="main-frame">
+    <div class="status-bar">STATUS SYSTEM: SIAP // THR_LEBARAN_2026</div>
+    <h1>PENGECEKAN NO WA PEMENANG UNDIAN</h1>
+    <p style="margin-bottom: 20px; font-size: 0.9rem; color: #aaa;">Authorized Access Only - MASUKAN NO WA UNTUK CEK HADIAH KEMUDIAN TEKAN CEK SEKARANG</p>
+    
+    <div class="input-box">
+        <input type="number" id="phoneInput" placeholder="MASUKAN NO WA" autocomplete="off">
+    </div>
+
+    <button class="btn-check" onclick="startHack()">TEKAN UNTUK CEK</button>
+
+    <div id="scanning-overlay">
+        <div class="scan-line"></div>
+        <div class="terminal-text" id="terminal"></div>
+    </div>
+
+    <div id="success-frame">
+        <span style="letter-spacing: 3px;">CEK SELESAI</span>
+        <span class="amount">Rp 2.000.000,00</span>
+        <p style="font-size: 0.8rem;" id="finalMessage"></p>
+    </div>
+</div>
+
+<script>
+    // Matrix Background Animation
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chars = "0101010101ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const fontSize = 15;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00ff41";
+        ctx.font = fontSize + "px monospace";
+
+        drops.forEach((y, i) => {
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(text, i * fontSize, y * fontSize);
+            if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
+    }
+    setInterval(drawMatrix, 33);
+
+    // Hacking Logic
+    function startHack() {
+        const phone = document.getElementById('phoneInput').value;
+        const terminal = document.getElementById('terminal');
+        const overlay = document.getElementById('scanning-overlay');
+        const success = document.getElementById('success-frame');
+
+        if (phone.length < 10) {
+            alert("ERROR: INVALID PHONE SEQUENCE");
+            return;
+        }
+
+        overlay.style.display = 'block';
+        success.style.display = 'none';
+        
+        const logs = [
+            "> pengecekan dimulai...",
+            "> scan no wa pemenang..",
+            "> pengkoneksian ke sistem pusat THR 2026 berlangsung...",
+            "> MOHON TUNGGU: " + phone,
+            "> Akun disetujui: STATUS_BERHASIL",
+            "> selamat saldo sebesae: Rp 2,000,000...",
+            "> Success! Packet terkirim."
+        ];
+
+        let i = 0;
+        terminal.innerHTML = "";
+        const interval = setInterval(() => {
+            if (i < logs.length) {
+                terminal.innerHTML += logs[i] + "<br>";
+                i++;
+            } else {
+                clearInterval(interval);
+                showSuccess(phone);
+            }
+        }, 600);
+    }
+
+    function showSuccess(phone) {
+        document.getElementById('scanning-overlay').style.display = 'none';
+        const frame = document.getElementById('success-frame');
+        frame.style.display = 'block';
+        document.getElementById('finalMessage').innerHTML = `Nomor ${phone} telah diverifikasi. Saldo THR telah dikirim ke akun utama.`;
+    }
+</script>
+
+</body>
+</html>
